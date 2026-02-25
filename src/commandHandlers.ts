@@ -17,22 +17,27 @@ import {
 
 /** Minimal vscode API needed by handlers; tests pass a mock that satisfies this. */
 export interface VscodeApi {
-  Range: new (start: { line: number; character: number }, end: { line: number; character: number }) => unknown;
-  window: { showErrorMessage: (message: string) => void };
-  workspace: { getWorkspaceFolder?: (uri: unknown) => { uri: { fsPath: string } } | undefined };
+  Range: typeof vscode.Range;
+  window: {
+    showErrorMessage: (message: string) => void;
+    activeTextEditor: vscode.TextEditor | undefined;
+  };
+  workspace: {
+    getWorkspaceFolder?: (
+      uri: vscode.Uri,
+    ) => { uri: { fsPath: string } } | undefined;
+  };
 }
 
 function getWorkspaceRoot(
   vscodeApi: VscodeApi,
-  document: { fileName: string; uri: { fsPath: string } },
+  document: { fileName: string; uri: vscode.Uri },
 ): string {
-  const folder = vscodeApi.workspace?.getWorkspaceFolder?.(document.uri as any);
+  const folder = vscodeApi.workspace?.getWorkspaceFolder?.(document.uri);
   return folder ? folder.uri.fsPath : path.dirname(document.fileName);
 }
 
-function scriptKind(
-  languageId: string,
-): "ts" | "tsx" {
+function scriptKind(languageId: string): "ts" | "tsx" {
   return languageId === "typescriptreact" ? "tsx" : "ts";
 }
 
@@ -94,23 +99,20 @@ async function doHandleSmartInline(
           ? ts.ScriptKind.TSX
           : ts.ScriptKind.TS,
       );
-      const existingImports = callerSourceFile.statements.filter(
-        (s) => ts.isImportDeclaration(s),
+      const existingImports = callerSourceFile.statements.filter((s) =>
+        ts.isImportDeclaration(s),
       );
       const insertOffset =
         existingImports.length > 0
           ? existingImports[existingImports.length - 1].getEnd()
           : 0;
-      editBuilder.insert(
-        document.positionAt(insertOffset),
-        toAdd.join(""),
-      );
+      editBuilder.insert(document.positionAt(insertOffset), toAdd.join(""));
     }
     const range = new vscodeApi.Range(
       document.positionAt(result.replaceStart),
       document.positionAt(result.replaceEnd),
     );
-    editBuilder.replace(range as any, result.expression);
+    editBuilder.replace(range, result.expression);
   });
 }
 
@@ -144,7 +146,7 @@ export async function handleLiteralInline(
       document.positionAt(result.replaceStart),
       document.positionAt(result.replaceEnd),
     );
-    editBuilder.replace(range as any, result.text);
+    editBuilder.replace(range, result.text);
   });
 }
 
@@ -178,7 +180,7 @@ export async function handleLiteralInlineArray(
       document.positionAt(result.replaceStart),
       document.positionAt(result.replaceEnd),
     );
-    editBuilder.replace(range as any, result.text);
+    editBuilder.replace(range, result.text);
   });
 }
 
@@ -212,6 +214,6 @@ export async function handleLiteralInlineObject(
       document.positionAt(result.replaceStart),
       document.positionAt(result.replaceEnd),
     );
-    editBuilder.replace(range as any, result.text);
+    editBuilder.replace(range, result.text);
   });
 }

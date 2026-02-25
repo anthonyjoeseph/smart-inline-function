@@ -33,19 +33,13 @@ export function collectImportedNames(
       byName.set(clause.name.text, stmt);
     }
 
-    if (
-      clause.namedBindings &&
-      ts.isNamedImports(clause.namedBindings)
-    ) {
+    if (clause.namedBindings && ts.isNamedImports(clause.namedBindings)) {
       for (const el of clause.namedBindings.elements) {
         byName.set(el.name.text, stmt);
       }
     }
 
-    if (
-      clause.namedBindings &&
-      ts.isNamespaceImport(clause.namedBindings)
-    ) {
+    if (clause.namedBindings && ts.isNamespaceImport(clause.namedBindings)) {
       byName.set(clause.namedBindings.name.text, stmt);
     }
   }
@@ -69,10 +63,7 @@ export function collectUsedImportedNames(
     if (ts.isIdentifier(node)) {
       const parent = node.parent;
       // Ignore identifiers that are merely property names (obj.prop)
-      if (
-        ts.isPropertyAccessExpression(parent) &&
-        parent.name === node
-      ) {
+      if (ts.isPropertyAccessExpression(parent) && parent.name === node) {
         return;
       }
       const decl = importedNames.byName.get(node.text);

@@ -12,4 +12,3 @@ export function literalInlineExpressionAtSelection(
   const result: string = literalFoldExpression(targetExpr, env, sourceFile);
   return result;
 }
-

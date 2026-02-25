@@ -9,8 +9,14 @@
 
 import * as ts from "typescript";
 import { isDeepConstExpr, resolveConstExpression } from "./inliningConst";
-import { tryReduceIfElseChainToExpression, tryReduceSwitchToExpression } from "./inliningControlFlow";
-import { collectImportedNames, collectUsedImportedNames } from "./inliningImports";
+import {
+  tryReduceIfElseChainToExpression,
+  tryReduceSwitchToExpression,
+} from "./inliningControlFlow";
+import {
+  collectImportedNames,
+  collectUsedImportedNames,
+} from "./inliningImports";
 import { substituteAndSimplifyExpression } from "./inliningSubstitute";
 
 export interface InlineResult {
@@ -196,7 +202,8 @@ export function inlineCallExpression(
     const candidates = importedNames.getAllByModule(moduleSpecifierText);
     return (
       candidates.find(
-        (d) => d.getText(fnSourceFile) === key.slice(moduleSpecifierText.length + 2),
+        (d) =>
+          d.getText(fnSourceFile) === key.slice(moduleSpecifierText.length + 2),
       ) ?? candidates[0]
     );
   });

@@ -114,7 +114,11 @@ export function tryReduceIfElseChainToExpression(
   }
 
   // Now substitute and simplify within the chosen return expression.
-  return substituteAndSimplifyExpression(chosenReturnExpr, argMap, paramConstEnv);
+  return substituteAndSimplifyExpression(
+    chosenReturnExpr,
+    argMap,
+    paramConstEnv,
+  );
 }
 
 function literalsEqual(a: ts.Expression, b: ts.Expression): boolean {
@@ -190,11 +194,7 @@ export function tryReduceSwitchToExpression(
       if (!returnExpr) {
         return undefined;
       }
-      return substituteAndSimplifyExpression(
-        returnExpr,
-        argMap,
-        paramConstEnv,
-      );
+      return substituteAndSimplifyExpression(returnExpr, argMap, paramConstEnv);
     } else {
       // Default clause
       if (clause.statements.length !== 1) {

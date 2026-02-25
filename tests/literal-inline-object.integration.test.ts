@@ -3,14 +3,13 @@
  * We invoke the same handler used in production (handleLiteralInlineObject) with mocked
  * vscode and editor, then assert on showErrorMessage and editor.edit (replace).
  */
-
-import { handleLiteralInlineObject, type VscodeApi } from "../src/commandHandlers";
-import { selectionOffsets } from "../src/commandRunners";
+import type * as vscode from "vscode";
 import {
-  createMockEditor,
-  createMockVscode,
-  FAKE_FILE,
-} from "./mockVscode";
+  handleLiteralInlineObject,
+  type VscodeApi,
+} from "../src/commandHandlers";
+import { selectionOffsets } from "../src/commandRunners";
+import { createMockEditor, createMockVscode, FAKE_FILE } from "./mockVscode";
 
 describe("Smart Literal Inline Object (smartInlineFunction.literal-inline-object)", () => {
   describe("when selection is inside Object.fromEntries(...) and argument is const", () => {
@@ -19,11 +18,19 @@ describe("Smart Literal Inline Object (smartInlineFunction.literal-inline-object
 const entries = [["a", 1], ["b", 2]];
 const obj = Object.fromEntries(entries);
 `;
-      const { start, end } = selectionOffsets(source, "Object.fromEntries(entries)");
+      const { start, end } = selectionOffsets(
+        source,
+        "Object.fromEntries(entries)",
+      );
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInlineObject(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineObject(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -31,7 +38,7 @@ const obj = Object.fromEntries(entries);
       const insert = jest.fn();
       await (editor.edit as jest.Mock).mock.calls[0][0]({ replace, insert });
       expect(replace).toHaveBeenCalled();
-      const text = (replace.mock.calls[0] as any)[1];
+      const text = replace.mock.calls[0][1];
       expect(text).toMatch(/a.*1|1.*a/);
       expect(text).toMatch(/b.*2|2.*b/);
     });
@@ -43,11 +50,19 @@ const obj = Object.fromEntries(entries);
 let entries = [["a", 1]];
 const obj = Object.fromEntries(entries);
 `;
-      const { start, end } = selectionOffsets(source, "Object.fromEntries(entries)");
+      const { start, end } = selectionOffsets(
+        source,
+        "Object.fromEntries(entries)",
+      );
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInlineObject(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineObject(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         expect.stringMatching(/const|entries/),
@@ -59,9 +74,14 @@ const obj = Object.fromEntries(entries);
       const source = `const x = { a: 1 };`;
       const { start, end } = selectionOffsets(source, "{ a: 1 }");
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInlineObject(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineObject(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         expect.stringMatching(/fromEntries|Selection must/),
@@ -74,7 +94,10 @@ const obj = Object.fromEntries(entries);
       const vscode = createMockVscode();
       const editor = createMockEditor(source, 0, 0, { fileName: FAKE_FILE });
 
-      await handleLiteralInlineObject(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineObject(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalled();
       expect(editor.edit).not.toHaveBeenCalled();

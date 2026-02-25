@@ -4,13 +4,13 @@
  * vscode and editor, then assert on showErrorMessage and editor.edit (replace).
  */
 
-import { handleLiteralInlineArray, type VscodeApi } from "../src/commandHandlers";
-import { selectionOffsets } from "../src/commandRunners";
 import {
-  createMockEditor,
-  createMockVscode,
-  FAKE_FILE,
-} from "./mockVscode";
+  handleLiteralInlineArray,
+  type VscodeApi,
+} from "../src/commandHandlers";
+import type * as vscode from "vscode";
+import { selectionOffsets } from "../src/commandRunners";
+import { createMockEditor, createMockVscode, FAKE_FILE } from "./mockVscode";
 
 describe("Smart Literal Inline Array (smartInlineFunction.literal-inline-array)", () => {
   describe("when selection is inside .map(...) and source is const", () => {
@@ -19,11 +19,19 @@ describe("Smart Literal Inline Array (smartInlineFunction.literal-inline-array)"
 const myArray = [1, 2, 3];
 const doubled = myArray.map((x) => x * 2);
 `;
-      const { start, end } = selectionOffsets(source, "myArray.map((x) => x * 2)");
+      const { start, end } = selectionOffsets(
+        source,
+        "myArray.map((x) => x * 2)",
+      );
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInlineArray(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineArray(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -43,9 +51,14 @@ const entries = Object.entries(obj).map(([k, v]) => v * 2);
         "Object.entries(obj).map(([k, v]) => v * 2)",
       );
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInlineArray(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineArray(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -53,7 +66,7 @@ const entries = Object.entries(obj).map(([k, v]) => v * 2);
       const insert = jest.fn();
       await (editor.edit as jest.Mock).mock.calls[0][0]({ replace, insert });
       expect(replace).toHaveBeenCalled();
-      const text = (replace.mock.calls[0] as any)[1];
+      const text = replace.mock.calls[0][1];
       expect(text.trim()).toBe("[2, 4]");
     });
   });
@@ -64,11 +77,19 @@ const entries = Object.entries(obj).map(([k, v]) => v * 2);
 let myArray = [1, 2];
 const doubled = myArray.map((x) => x * 2);
 `;
-      const { start, end } = selectionOffsets(source, "myArray.map((x) => x * 2)");
+      const { start, end } = selectionOffsets(
+        source,
+        "myArray.map((x) => x * 2)",
+      );
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInlineArray(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineArray(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         expect.stringMatching(/const/),
@@ -80,9 +101,14 @@ const doubled = myArray.map((x) => x * 2);
       const source = `const x = [1, 2, 3];`;
       const { start, end } = selectionOffsets(source, "[1, 2, 3]");
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInlineArray(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineArray(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         expect.stringMatching(/\.map|Selection must/),
@@ -95,7 +121,10 @@ const doubled = myArray.map((x) => x * 2);
       const vscode = createMockVscode();
       const editor = createMockEditor(source, 0, 0, { fileName: FAKE_FILE });
 
-      await handleLiteralInlineArray(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInlineArray(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalled();
       expect(editor.edit).not.toHaveBeenCalled();

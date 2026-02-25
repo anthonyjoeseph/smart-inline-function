@@ -9,7 +9,10 @@ import * as path from "path";
 const FAKE_FILE = path.join(__dirname, "fake.ts");
 const FAKE_WORKSPACE = path.dirname(__dirname);
 
-function positionAtOffset(text: string, offset: number): { line: number; character: number } {
+function positionAtOffset(
+  text: string,
+  offset: number,
+): { line: number; character: number } {
   const lines = text.split(/\r?\n/);
   let current = 0;
   for (let line = 0; line < lines.length; line++) {
@@ -25,17 +28,25 @@ function positionAtOffset(text: string, offset: number): { line: number; charact
   };
 }
 
-function offsetAtPosition(text: string, position: { line: number; character: number }): number {
+function offsetAtPosition(
+  text: string,
+  position: { line: number; character: number },
+): number {
   const lines = text.split(/\r?\n/);
   let offset = 0;
   for (let l = 0; l < position.line && l < lines.length; l++) {
     offset += lines[l].length + 1;
   }
-  return offset + Math.min(position.character, lines[position.line]?.length ?? 0);
+  return (
+    offset + Math.min(position.character, lines[position.line]?.length ?? 0)
+  );
 }
 
 export interface MockEditBuilder {
-  replace: jest.Mock<void, [range: { start: unknown; end: unknown }, text: string]>;
+  replace: jest.Mock<
+    void,
+    [range: { start: unknown; end: unknown }, text: string]
+  >;
   insert: jest.Mock<void, [position: unknown, text: string]>;
 }
 
@@ -48,8 +59,14 @@ export interface MockEditor {
     offsetAt: (position: { line: number; character: number }) => number;
     positionAt: (offset: number) => { line: number; character: number };
   };
-  selection: { start: { line: number; character: number }; end: { line: number; character: number } };
-  edit: jest.Mock<Promise<boolean>, [(editBuilder: MockEditBuilder) => void | Promise<void>]>;
+  selection: {
+    start: { line: number; character: number };
+    end: { line: number; character: number };
+  };
+  edit: jest.Mock<
+    Promise<boolean>,
+    [(editBuilder: MockEditBuilder) => void | Promise<void>]
+  >;
 }
 
 export interface MockVscode {
@@ -62,7 +79,9 @@ export interface MockVscode {
     activeTextEditor: MockEditor | undefined;
   };
   workspace: {
-    getWorkspaceFolder: (uri: { fsPath: string }) => { uri: { fsPath: string } } | undefined;
+    getWorkspaceFolder: (uri: {
+      fsPath: string;
+    }) => { uri: { fsPath: string } } | undefined;
   };
 }
 
@@ -79,7 +98,10 @@ export function createMockEditor(
   const fileName = options.fileName ?? FAKE_FILE;
   const languageId = options.languageId ?? "typescript";
 
-  const replace = jest.fn<void, [range: { start: unknown; end: unknown }, text: string]>();
+  const replace = jest.fn<
+    void,
+    [range: { start: unknown; end: unknown }, text: string]
+  >();
   const insert = jest.fn<void, [position: unknown, text: string]>();
 
   const document = {

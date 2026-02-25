@@ -315,14 +315,15 @@ async function tryResolveFromSourceMap(
     return undefined;
   }
 
-  let json: any;
+  let json: unknown;
   try {
     json = JSON.parse(raw);
   } catch {
     return undefined;
   }
 
-  const sources: string[] | undefined = json.sources;
+  const sources: string[] | undefined = (json as { sources?: string[] })
+    .sources;
   if (!Array.isArray(sources)) {
     return undefined;
   }
@@ -343,4 +344,3 @@ async function tryResolveFromSourceMap(
 
   return undefined;
 }
-

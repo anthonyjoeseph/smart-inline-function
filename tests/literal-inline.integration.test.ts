@@ -4,13 +4,10 @@
  * vscode and editor, then assert on showErrorMessage and editor.edit (replace).
  */
 
+import type * as vscode from "vscode";
 import { handleLiteralInline, type VscodeApi } from "../src/commandHandlers";
 import { selectionOffsets } from "../src/commandRunners";
-import {
-  createMockEditor,
-  createMockVscode,
-  FAKE_FILE,
-} from "./mockVscode";
+import { createMockEditor, createMockVscode, FAKE_FILE } from "./mockVscode";
 
 describe("Smart Literal Inline (smartInlineFunction.literal-inline)", () => {
   describe("when selection is on an expression with const bindings in scope", () => {
@@ -21,9 +18,14 @@ const sum = arg + 3;
 `;
       const { start, end } = selectionOffsets(source, "arg + 3");
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInline(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -38,14 +40,16 @@ const sum = arg + 3;
 const month = "June";
 const myString = \`\${month} says hello!\`;
 `;
-      const { start, end } = selectionOffsets(
-        source,
-        "`${month} says hello!`",
-      );
+      const { start, end } = selectionOffsets(source, "`${month} says hello!`");
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInline(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -53,7 +57,7 @@ const myString = \`\${month} says hello!\`;
       const insert = jest.fn();
       await (editor.edit as jest.Mock).mock.calls[0][0]({ replace, insert });
       expect(replace).toHaveBeenCalled();
-      expect((replace.mock.calls[0] as any)[1]).toMatch(/June says hello!/);
+      expect(replace.mock.calls[0][1]).toMatch(/June says hello!/);
     });
 
     it("flattens array spread when spread source is const array", async () => {
@@ -63,9 +67,14 @@ const bigArray = [...arg, 4, 5];
 `;
       const { start, end } = selectionOffsets(source, "[...arg, 4, 5]");
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInline(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -82,9 +91,14 @@ const obj = { ...base, b: 2 };
 `;
       const { start, end } = selectionOffsets(source, "{ ...base, b: 2 }");
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInline(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -92,7 +106,7 @@ const obj = { ...base, b: 2 };
       const insert = jest.fn();
       await (editor.edit as jest.Mock).mock.calls[0][0]({ replace, insert });
       expect(replace).toHaveBeenCalled();
-      const text = (replace.mock.calls[0] as any)[1];
+      const text = replace.mock.calls[0][1];
       expect(text).toMatch(/a.*1/);
       expect(text).toMatch(/b.*2/);
     });
@@ -102,9 +116,14 @@ const obj = { ...base, b: 2 };
     it("shows error when no expression is at the selection", async () => {
       const source = `const x = ;`;
       const vscode = createMockVscode();
-      const editor = createMockEditor(source, 0, source.length, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, 0, source.length, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleLiteralInline(vscode as unknown as VscodeApi, editor as any);
+      await handleLiteralInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         expect.stringMatching(/No expression/),

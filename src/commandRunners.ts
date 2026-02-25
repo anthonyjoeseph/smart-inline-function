@@ -62,7 +62,10 @@ export async function runSmartInline(
 
   const callExpr = findSelectedCallExpression(sourceFile, start, end);
   if (!callExpr) {
-    return { ok: false, error: "No function call expression found at the selection." };
+    return {
+      ok: false,
+      error: "No function call expression found at the selection.",
+    };
   }
 
   const callee = callExpr.expression;
@@ -217,7 +220,6 @@ export function runLiteralInlineArray(
   };
 }
 
-
 export interface RunLiteralInlineObjectParams {
   sourceText: string;
   start: number;
@@ -361,7 +363,9 @@ export function selectionOffsets(
 ): { start: number; end: number } {
   const start = sourceText.indexOf(selectedSubstring);
   if (start === -1) {
-    throw new Error(`Selection substring not found: ${JSON.stringify(selectedSubstring)}`);
+    throw new Error(
+      `Selection substring not found: ${JSON.stringify(selectedSubstring)}`,
+    );
   }
   return { start, end: start + selectedSubstring.length };
 }

@@ -17,7 +17,7 @@ export function substituteAndSimplifyExpression(
 ): ts.Expression {
   const factory = ts.factory;
 
-  function evalLiteralExpression(node: ts.Expression): any | undefined {
+  function evalLiteralExpression(node: ts.Expression): unknown | undefined {
     if (paramConstEnv.size > 0) {
       const constExpr = resolveConstExpression(node, paramConstEnv, 0);
       if (constExpr && isDeepConstExpr(constExpr)) {
@@ -39,8 +39,10 @@ export function substituteAndSimplifyExpression(
         case ts.SyntaxKind.ExclamationToken:
           return !v;
         case ts.SyntaxKind.PlusToken:
+          if (v == null) throw new Error("Cannot convert null to number");
           return +v;
         case ts.SyntaxKind.MinusToken:
+          if (v == null) throw new Error("Cannot negate null");
           return -v;
         default:
           return undefined;
@@ -50,8 +52,8 @@ export function substituteAndSimplifyExpression(
       return evalLiteralExpression(node.expression);
     }
     if (ts.isBinaryExpression(node)) {
-      const left = evalLiteralExpression(node.left);
-      const right = evalLiteralExpression(node.right);
+      const left: unknown = evalLiteralExpression(node.left);
+      const right: unknown = evalLiteralExpression(node.right);
       if (left === undefined || right === undefined) return undefined;
       switch (node.operatorToken.kind) {
         case ts.SyntaxKind.EqualsEqualsEqualsToken:
@@ -61,23 +63,23 @@ export function substituteAndSimplifyExpression(
         case ts.SyntaxKind.ExclamationEqualsToken:
           return left !== right;
         case ts.SyntaxKind.LessThanToken:
-          return left < right;
+          return (left as number) < (right as number);
         case ts.SyntaxKind.LessThanEqualsToken:
-          return left <= right;
+          return (left as number) <= (right as number);
         case ts.SyntaxKind.GreaterThanToken:
-          return left > right;
+          return (left as number) > (right as number);
         case ts.SyntaxKind.GreaterThanEqualsToken:
-          return left >= right;
+          return (left as number) >= (right as number);
         case ts.SyntaxKind.PlusToken:
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          return left + right;
+          return (left as number) + (right as number);
         case ts.SyntaxKind.MinusToken:
-          return (left as any) - (right as any);
+          return (left as number) - (right as number);
         case ts.SyntaxKind.AsteriskToken:
-          return (left as any) * (right as any);
+          return (left as number) * (right as number);
         case ts.SyntaxKind.SlashToken:
-          return (left as any) / (right as any);
+          return (left as number) / (right as number);
         default:
           return undefined;
       }
@@ -90,8 +92,8 @@ export function substituteAndSimplifyExpression(
     enableSubstitution: () => {},
     endLexicalEnvironment: () => [],
     getCompilerOptions: () => ({}) as ts.CompilerOptions,
-    getEmitHost: () => ({}) as any,
-    getEmitResolver: () => ({}) as any,
+    getEmitHost: () => ({}),
+    getEmitResolver: () => ({}),
     hoistFunctionDeclaration: () => {},
     hoistVariableDeclaration: () => {},
     isEmitNotificationEnabled: () => false,
@@ -167,10 +169,7 @@ export function substituteAndSimplifyExpression(
       }
 
       const newSpans = node.templateSpans.map((span) =>
-        factory.createTemplateSpan(
-          simplify(span.expression),
-          span.literal,
-        ),
+        factory.createTemplateSpan(simplify(span.expression), span.literal),
       );
       return factory.createTemplateExpression(node.head, newSpans);
     }
@@ -228,8 +227,11 @@ export function substituteAndSimplifyExpression(
           const spreadExprSimplified = simplify(el.expression);
           const resolved =
             paramConstEnv.size > 0
-              ? resolveConstExpression(spreadExprSimplified, paramConstEnv, 0) ??
-                spreadExprSimplified
+              ? (resolveConstExpression(
+                  spreadExprSimplified,
+                  paramConstEnv,
+                  0,
+                ) ?? spreadExprSimplified)
               : spreadExprSimplified;
 
           if (
@@ -260,7 +262,10 @@ export function substituteAndSimplifyExpression(
       if (!changed) {
         return node;
       }
-      return factory.createArrayLiteralExpression(elements, /*multiLine*/ false);
+      return factory.createArrayLiteralExpression(
+        elements,
+        /*multiLine*/ false,
+      );
     }
 
     // Object literals with literal-safe spreads
@@ -273,8 +278,11 @@ export function substituteAndSimplifyExpression(
           const spreadExprSimplified = simplify(prop.expression);
           const resolved =
             paramConstEnv.size > 0
-              ? resolveConstExpression(spreadExprSimplified, paramConstEnv, 0) ??
-                spreadExprSimplified
+              ? (resolveConstExpression(
+                  spreadExprSimplified,
+                  paramConstEnv,
+                  0,
+                ) ?? spreadExprSimplified)
               : spreadExprSimplified;
 
           if (
@@ -293,9 +301,7 @@ export function substituteAndSimplifyExpression(
                   properties.push(newProp);
                 }
               } else {
-                properties.push(
-                  factory.createSpreadAssignment(resolved),
-                );
+                properties.push(factory.createSpreadAssignment(resolved));
                 break;
               }
             }
@@ -328,7 +334,10 @@ export function substituteAndSimplifyExpression(
         return node;
       }
 
-      return factory.createObjectLiteralExpression(properties, /*multiLine*/ false);
+      return factory.createObjectLiteralExpression(
+        properties,
+        /*multiLine*/ false,
+      );
     }
 
     // Call inside expression: still substitute args where possible

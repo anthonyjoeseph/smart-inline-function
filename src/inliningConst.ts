@@ -62,7 +62,8 @@ export function resolveConstExpression(
     const bound = env.get(expr.text);
     if (!bound) return undefined;
     return ts.isExpression(bound)
-      ? resolveConstExpression(bound as ts.Expression, env, depth + 1) ?? bound
+      ? (resolveConstExpression(bound as ts.Expression, env, depth + 1) ??
+          bound)
       : undefined;
   }
 

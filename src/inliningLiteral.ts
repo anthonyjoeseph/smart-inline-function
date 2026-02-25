@@ -104,8 +104,8 @@ export function literalInlineArray(
         error: `"${arrayLikeExpr.text}" must be a const array literal.`,
       };
     }
-    sourceElements = resolved.elements.filter(
-      (el): el is ts.Expression => ts.isExpression(el),
+    sourceElements = resolved.elements.filter((el): el is ts.Expression =>
+      ts.isExpression(el),
     ) as ts.Expression[];
   } else if (ts.isCallExpression(arrayLikeExpr)) {
     const innerCallee = arrayLikeExpr.expression;
@@ -117,7 +117,8 @@ export function literalInlineArray(
     ) {
       return {
         ok: false,
-        error: "Literal-inline-array supports array or Object.entries(...).map(...) only.",
+        error:
+          "Literal-inline-array supports array or Object.entries(...).map(...) only.",
       };
     }
     const objArg = arrayLikeExpr.arguments[0];
@@ -141,12 +142,11 @@ export function literalInlineArray(
     for (const prop of resolved.properties) {
       if (!ts.isPropertyAssignment(prop)) continue;
       const key = prop.name;
-      const keyExpr =
-        ts.isIdentifier(key)
-          ? factory.createStringLiteral(key.text)
-          : ts.isStringLiteral(key) || ts.isNumericLiteral(key)
-            ? key
-            : undefined;
+      const keyExpr = ts.isIdentifier(key)
+        ? factory.createStringLiteral(key.text)
+        : ts.isStringLiteral(key) || ts.isNumericLiteral(key)
+          ? key
+          : undefined;
       if (!keyExpr || !ts.isExpression(prop.initializer)) continue;
       sourceElements.push(
         factory.createArrayLiteralExpression([
@@ -158,7 +158,8 @@ export function literalInlineArray(
   } else {
     return {
       ok: false,
-      error: "Literal-inline-array supports array or Object.entries(...).map(...) only.",
+      error:
+        "Literal-inline-array supports array or Object.entries(...).map(...) only.",
     };
   }
 
@@ -166,7 +167,8 @@ export function literalInlineArray(
   if (!bodyExpr) {
     return {
       ok: false,
-      error: "Map callback must be an arrow function or function expression with a single return.",
+      error:
+        "Map callback must be an arrow function or function expression with a single return.",
     };
   }
 
@@ -271,7 +273,12 @@ export function literalInlineObject(
     }
     const keyExpr = entry.elements[0];
     const valueExpr = entry.elements[1];
-    if (!keyExpr || !ts.isExpression(keyExpr) || !valueExpr || !ts.isExpression(valueExpr)) {
+    if (
+      !keyExpr ||
+      !ts.isExpression(keyExpr) ||
+      !valueExpr ||
+      !ts.isExpression(valueExpr)
+    ) {
       return { ok: false, error: "Invalid entry." };
     }
     const propName =

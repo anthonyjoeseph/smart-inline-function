@@ -4,6 +4,7 @@
  * vscode and editor, then assert on showErrorMessage and editor.edit (replace/insert).
  */
 
+import type * as vscode from "vscode";
 import { handleSmartInline, type VscodeApi } from "../src/commandHandlers";
 import { selectionOffsets } from "../src/commandRunners";
 import {
@@ -23,9 +24,14 @@ const result = addTwo(three);
 `;
       const { start, end } = selectionOffsets(source, "addTwo(three)");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -35,10 +41,11 @@ const result = addTwo(three);
       await editBuilder({ replace, insert });
       expect(replace).toHaveBeenCalled();
       const replaceCall = replace.mock.calls.find(
-        (c: unknown[]) => typeof c[1] === "string" && (c[1] as string).trim() === "three + 2",
+        (c: unknown[]) =>
+          typeof c[1] === "string" && (c[1] as string).trim() === "three + 2",
       );
       expect(replaceCall).toBeDefined();
-      expect((replaceCall as any)[1].trim()).toBe("three + 2");
+      expect(replaceCall[1].trim()).toBe("three + 2");
     });
 
     it("inlines when argument is a property access and preserves the expression", async () => {
@@ -49,9 +56,14 @@ const result = addTwo(nums.four);
 `;
       const { start, end } = selectionOffsets(source, "addTwo(nums.four)");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -60,7 +72,9 @@ const result = addTwo(nums.four);
       const insert = jest.fn();
       await editBuilder({ replace, insert });
       const replaceCalls = replace.mock.calls as Array<[unknown, string]>;
-      const exprReplace = replaceCalls.find(([, text]) => text.trim() === "nums.four + 2");
+      const exprReplace = replaceCalls.find(
+        ([, text]) => text.trim() === "nums.four + 2",
+      );
       expect(exprReplace).toBeDefined();
     });
 
@@ -72,9 +86,14 @@ const result = addTwo(arr[1]);
 `;
       const { start, end } = selectionOffsets(source, "addTwo(arr[1])");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -83,7 +102,9 @@ const result = addTwo(arr[1]);
       const insert = jest.fn();
       await editBuilder({ replace, insert });
       const replaceCalls = replace.mock.calls as Array<[unknown, string]>;
-      expect(replaceCalls.some(([, text]) => text.trim() === "arr[1] + 2")).toBe(true);
+      expect(
+        replaceCalls.some(([, text]) => text.trim() === "arr[1] + 2"),
+      ).toBe(true);
     });
 
     it("inlines functions with object-destructured params and maps to access expressions", async () => {
@@ -94,9 +115,14 @@ const result = add(pair);
 `;
       const { start, end } = selectionOffsets(source, "add(pair)");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -105,7 +131,9 @@ const result = add(pair);
       const insert = jest.fn();
       await editBuilder({ replace, insert });
       const replaceCalls = replace.mock.calls as Array<[unknown, string]>;
-      expect(replaceCalls.some(([, text]) => text.trim() === "pair.a + pair.b")).toBe(true);
+      expect(
+        replaceCalls.some(([, text]) => text.trim() === "pair.a + pair.b"),
+      ).toBe(true);
     });
 
     it("inlines functions with array-destructured params and maps to index access", async () => {
@@ -116,9 +144,14 @@ const result = sumTwo(tup);
 `;
       const { start, end } = selectionOffsets(source, "sumTwo(tup)");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -127,7 +160,9 @@ const result = sumTwo(tup);
       const insert = jest.fn();
       await editBuilder({ replace, insert });
       const replaceCalls = replace.mock.calls as Array<[unknown, string]>;
-      expect(replaceCalls.some(([, text]) => text.trim() === "tup[0] + tup[1]")).toBe(true);
+      expect(
+        replaceCalls.some(([, text]) => text.trim() === "tup[0] + tup[1]"),
+      ).toBe(true);
     });
 
     it("collapses if/else when condition can be evaluated from const inputs", async () => {
@@ -138,9 +173,14 @@ const result = fn(OFF);
 `;
       const { start, end } = selectionOffsets(source, "fn(OFF)");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -166,9 +206,14 @@ const result = label(TWO);
 `;
       const { start, end } = selectionOffsets(source, "label(TWO)");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -177,7 +222,9 @@ const result = label(TWO);
       const insert = jest.fn();
       await editBuilder({ replace, insert });
       const replaceCalls = replace.mock.calls as Array<[unknown, string]>;
-      expect(replaceCalls.some(([, text]) => text.trim() === '"two"')).toBe(true);
+      expect(replaceCalls.some(([, text]) => text.trim() === '"two"')).toBe(
+        true,
+      );
     });
   });
 
@@ -191,9 +238,14 @@ function run() {
 `;
       const { start, end } = selectionOffsets(source, "asyncFetch()");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledTimes(1);
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
@@ -211,9 +263,14 @@ async function run() {
 `;
       const { start, end } = selectionOffsets(source, "asyncFetch()");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).not.toHaveBeenCalled();
       expect(editor.edit).toHaveBeenCalledTimes(1);
@@ -221,9 +278,11 @@ async function run() {
       const replace = jest.fn();
       const insert = jest.fn();
       await editBuilder({ replace, insert });
-      expect(replace.mock.calls.some(([, text]: [unknown, string]) => text.trim() === "42")).toBe(
-        true,
-      );
+      expect(
+        replace.mock.calls.some(
+          ([, text]: [unknown, string]) => text.trim() === "42",
+        ),
+      ).toBe(true);
     });
   });
 
@@ -232,9 +291,14 @@ async function run() {
       const source = `const x = 1 + 2;`;
       const { start, end } = selectionOffsets(source, "1 + 2");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         "No function call expression found at the selection.",
@@ -249,9 +313,14 @@ const result = (f)();
 `;
       const { start, end } = selectionOffsets(source, "(f)()");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         expect.stringMatching(/simple function identifiers/),
@@ -263,9 +332,14 @@ const result = (f)();
       const source = `const result = unknownFunc(1);`;
       const { start, end } = selectionOffsets(source, "unknownFunc(1)");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
         expect.stringMatching(/Could not resolve/),
@@ -285,12 +359,18 @@ const result = complex();
 `;
       const { start, end } = selectionOffsets(source, "complex()");
       const vscode = createMockVscode(FAKE_WORKSPACE);
-      const editor = createMockEditor(source, start, end, { fileName: FAKE_FILE });
+      const editor = createMockEditor(source, start, end, {
+        fileName: FAKE_FILE,
+      });
 
-      await handleSmartInline(vscode as unknown as VscodeApi, editor as any);
+      await handleSmartInline(
+        vscode as unknown as VscodeApi,
+        editor as unknown as vscode.TextEditor,
+      );
 
       expect(vscode.window.showErrorMessage).toHaveBeenCalled();
-      const msg = (vscode.window.showErrorMessage as jest.Mock).mock.calls[0][0];
+      const msg = (vscode.window.showErrorMessage as jest.Mock).mock
+        .calls[0][0];
       expect(msg).toMatch(/too complex|No function call expression/);
       expect(editor.edit).not.toHaveBeenCalled();
     });

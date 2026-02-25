@@ -5,22 +5,18 @@ import {
   handleLiteralInlineArray,
   handleLiteralInlineObject,
   handleSmartInline,
+  VscodeApi,
 } from "./commandHandlers";
 
 function isSupportedLanguage(languageId: string): boolean {
-  return (
-    languageId === "typescript" || languageId === "typescriptreact"
-  );
+  return languageId === "typescript" || languageId === "typescriptreact";
 }
 
 function runWithEditor(
-  vscodeApi: typeof vscode,
+  vscodeApi: VscodeApi,
   commandName: string,
   unsupportedMessage: string,
-  handler: (
-    vscodeApi: typeof vscode,
-    editor: vscode.TextEditor,
-  ) => Promise<void>,
+  handler: (vscodeApi: VscodeApi, editor: vscode.TextEditor) => Promise<void>,
 ): () => Promise<void> {
   return async () => {
     const editor = vscodeApi.window.activeTextEditor;
