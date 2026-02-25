@@ -1,0 +1,37 @@
+{
+  "name": "smart-inline-function",
+  "displayName": "Smart Inline Function",
+  "description": "Inline TypeScript function calls with smart beta-reduction and conditional simplification, across files and (where possible) npm modules with source maps.",
+  "version": "0.0.1",
+  "publisher": "your-name-or-org",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:smartInlineFunction.inline"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "smartInlineFunction.inline",
+        "title": "Smart Inline Function",
+        "category": "Refactor"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "@types/vscode": "^1.109.0",
+    "typescript": "^5.6.0",
+    "vscode-test": "^1.6.1"
+  }
+}
