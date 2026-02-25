@@ -4,6 +4,22 @@
 
 It replaces a function call with the body of the function, with arguments substituted into parameters and simple conditionals reduced where possible.
 
+### Philosophy
+
+This is meant to be used alongside "scaffolding" libraries, to quickly generate code that's not quite boilerplate, but serves as a starting point. Code should be simple when possible, but should reveal itself to arbitrarily complex configuration when desired
+
+examples of leaky abstractions:
+
+- ORMs
+- HTML form
+
+example of solutions:
+
+- a simple function for SQL joins that generates SQL and transformation code
+- a simple function on a table schema that generates the skeleton of a form with error states & a rest endpoint
+
+Should work well alongside other scaffolding tools like [yeoman](https://yeoman.io/generators/)
+
 ### Features
 
 - **Inline simple functions**
