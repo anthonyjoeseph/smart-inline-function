@@ -1,0 +1,11 @@
+- "literal" inlining
+  - implemented but not working as expected - the function itself is never inlined
+- importing from npm modules that have "sourceMap" enabled
+  - implemented but not working or tested
+- adding new imports that dont exist yet
+  - implemented but not working or tested
+- multiple return statements
+- UI feature
+  - 'tab' to go to parts of the newly 'inlined' function that can themselves be recursively inlined
+  - 'return' to inline them
+  - 'escape' to exit this view
