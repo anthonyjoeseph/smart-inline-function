@@ -6,19 +6,25 @@ It replaces a function call with the body of the function, with arguments substi
 
 ### Philosophy
 
-This is meant to be used to quickly generate code that's not quite boilerplate, but serves as a starting point. Code should be simple at first, but should reveal itself to arbitrarily complex configuration when that becomes useful
+Code should be simple at first, but should reveal itself to arbitrarily complex configuration when that becomes useful.
 
-examples of leaky abstractions:
+Often, certain code will be common enough that an abstraction is desired, but complex enough that an abstraction can't capture all of it without becoming more complicated than the original problem.
+
+examples of these leaky abstractions:
 
 - ORMs
-- HTML form
+- HTML form libraries
+- UI libraries like Material UI
+
+My idea is that these tools aim to reduce the tedium of _code itself_, rather than serve as behavior or meaning in their own right
+
+My solution is a kind of polar opposite of encapsulation: rather than complex & leaky abstractions, use simple & _extremely_ leaky abstractions that easily give way to full control.
 
 example of solutions:
 
 - a simple function for SQL joins that generates SQL and transformation code
-- a simple function on a table schema that generates the skeleton of a form with error states & a rest endpoint
-
-The polar opposite of encapsulation: rather than complex & leaky abstractions, use simple & _extremely_ leaky abstractions that are able to give way to full control.
+- a simple function on a table schema that generates the skeleton of a form with error states & REST endpoints
+- an opinionated Table component & paginated REST endpoints that gives way to raw html & expressjs
 
 Should work well alongside other scaffolding tools like [yeoman](https://yeoman.io/generators/)
 
